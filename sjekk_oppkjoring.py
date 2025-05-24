@@ -1,28 +1,16 @@
 import requests
-from datetime import datetime
-import time as t
-import json
+import os
+import time
 
-# === TELEGRAM-INNSTILLINGER ===
-telegram_bot_token = '7361447657:AAHG_NNIJPzAGlb0xvinEBEiGnM9Pq4Oou8'
-telegram_chat_id = '7659822832'
-
-def send_telegram(message):
-    url = f"https://api.telegram.org/bot{telegram_bot_token}/sendMessage"
-    data = {"chat_id": telegram_chat_id, "text": message}
-    response = requests.post(url, data=data)
-    print("Statuskode:", response.status_code)
-    print("Respons:", response.text)
-
-# === LAST INN TOKENS FRA FIL ===
-with open("tokens.json", "r") as f:
-    tokens = json.load(f)
-
+# Hent tokens og telegram-info fra miljøvariabler
 cookies = {
-    'XSRF-TOKEN': tokens["XSRF-TOKEN"],
-    'ai_session': tokens["ai_session"],
-    'SVVSecurityToken': tokens["SVVSecurityToken"]
+    'XSRF-TOKEN': os.getenv("XSRF_TOKEN"),
+    'ai_session': os.getenv("AI_SESSION"),
+    'SVVSecurityToken': os.getenv("SVV_SECURITY_TOKEN")
 }
+
+telegram_bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
+telegram_chat_id = os.getenv("TELEGRAM_CHAT_ID")
 
 headers = {
     'User-Agent': 'Mozilla/5.0',
@@ -37,6 +25,15 @@ trafikkstasjoner = {
     '071': 'Lillestrøm',
     '081': 'Risløkka'
 }
+
+def send_telegram(message):
+    url = f"https://api.telegram.org/bot{telegram_bot_token}/sendMessage"
+    data = {"chat_id": telegram_chat_id, "text": message}
+    response = requests.post(url, data=data)
+    print("Statuskode:", response.status_code)
+    print("Respons:", response.text)
+
+print("Starter sjekk av oppkjoringstimer...")
 
 while True:
     print("\n🔁 Starter ny sjekk...")
@@ -75,5 +72,5 @@ while True:
             melding += "\n\n📅 Men det finnes timer senere:\n" + "\n".join(alle_timer)
 
     send_telegram(melding)
-    print("🕐 Venter 1 minutt før neste sjekk...")
-    t.sleep(60)
+    print("🕐 Venter 1 time før neste sjekk...")
+    time.sleep(3600)
