@@ -1,6 +1,6 @@
 import requests
 import os
-import time
+import time as t
 
 # Hent tokens og telegram-info fra miljøvariabler
 cookies = {
@@ -73,4 +73,4 @@ while True:
 
     send_telegram(melding)
     print("🕐 Venter 1 time før neste sjekk...")
-    time.sleep(3600)
+    t.sleep(3600)
